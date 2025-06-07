@@ -2,7 +2,8 @@ package cl.duoc.ms.adm.facturas.Controller;
 
 import cl.duoc.ms.adm.facturas.dto.ClienteDTO;
 import cl.duoc.ms.adm.facturas.model.Cliente;
-import cl.duoc.ms.adm.facturas.Service.ClienteService;
+import cl.duoc.ms.adm.facturas.service.ClienteService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class ClienteController {
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
     }
+
 
     @GetMapping
     public List<ClienteDTO> listar() {

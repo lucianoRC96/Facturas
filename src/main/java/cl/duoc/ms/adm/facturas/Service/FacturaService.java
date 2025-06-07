@@ -1,4 +1,4 @@
-package cl.duoc.ms.adm.facturas.Service;
+package cl.duoc.ms.adm.facturas.service;
 
 import cl.duoc.ms.adm.facturas.model.Factura;
 import cl.duoc.ms.adm.facturas.Repository.FacturaRepository;

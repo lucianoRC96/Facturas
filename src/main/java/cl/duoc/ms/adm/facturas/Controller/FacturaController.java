@@ -3,8 +3,9 @@ package cl.duoc.ms.adm.facturas.Controller;
 import cl.duoc.ms.adm.facturas.dto.FacturaDTO;
 import cl.duoc.ms.adm.facturas.dto.DetalleFacturaDTO;
 import cl.duoc.ms.adm.facturas.model.Factura;
+import cl.duoc.ms.adm.facturas.service.FacturaService;
 import cl.duoc.ms.adm.facturas.model.DetalleFactura;
-import cl.duoc.ms.adm.facturas.Service.FacturaService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.stream.Collectors;
 @RequestMapping("/facturas")
 public class FacturaController {
     private final FacturaService facturaService;
+ 
+
 
     public FacturaController(FacturaService facturaService) {
         this.facturaService = facturaService;

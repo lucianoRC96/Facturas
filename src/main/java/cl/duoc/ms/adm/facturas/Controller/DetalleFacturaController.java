@@ -2,7 +2,8 @@ package cl.duoc.ms.adm.facturas.Controller;
 
 import cl.duoc.ms.adm.facturas.dto.DetalleFacturaDTO;
 import cl.duoc.ms.adm.facturas.model.DetalleFactura;
-import cl.duoc.ms.adm.facturas.Service.DetalleFacturaService;
+import cl.duoc.ms.adm.facturas.service.DetalleFacturaService;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
