@@ -47,15 +47,20 @@ public class AwsS3Service {
         return responseBytes.asByteArray();
     }
 
-    public void upload(String bucket, String key, MultipartFile file) {
+    public void upload(String bucket, String key, byte[] content) {
+    
         try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder().bucket(bucket).key(key)
-                    .contentType(file.getContentType()).contentLength(file.getSize()).build();
-            s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .contentType("application/pdf")
+                .build();
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(content));
         } catch (Exception e) {
-            throw new RuntimeException("Error uploading file to S3", e);
+                throw new RuntimeException("Error subir el archivo al S3", e);
+            }        
         }
-    }
+
 
     public void moveObject(String bucket, String sourceKey, String destKey) {
         CopyObjectRequest copyRequest = CopyObjectRequest.builder().sourceBucket(bucket).sourceKey(sourceKey)

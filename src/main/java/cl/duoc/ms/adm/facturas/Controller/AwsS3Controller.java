@@ -12,6 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import java.io.ByteArrayOutputStream;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
 
 @RestController
 @RequestMapping("/facturas")
@@ -20,14 +25,35 @@ public class AwsS3Controller {
 
     private final AwsS3Service awsS3Service;
 
-    // Crear factura (solo metadata, sin archivo)
-    @PostMapping("/crear")
-    public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
-                                               @RequestParam String facturaId,
-                                               @RequestParam String fecha) {
-        // Aquí puedes guardar la metadata en tu base de datos si lo deseas
-        return ResponseEntity.ok("Factura creada correctamente.");
+@PostMapping("/crear")
+public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
+                                           @RequestParam String facturaId,
+                                           @RequestParam String fecha) {
+    try {
+        LocalDate localDate = LocalDate.parse(fecha, DateTimeFormatter.ISO_DATE);
+        String carpeta = clienteId + "/" + localDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
+        String key = carpeta + "/" + facturaId + ".pdf";
+
+        // Generar PDF en memoria
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document();
+        PdfWriter.getInstance(document, baos);
+        document.open();
+        document.add(new Paragraph("Factura generada automáticamente"));
+        document.add(new Paragraph("Cliente: " + clienteId));
+        document.add(new Paragraph("Factura: " + facturaId));
+        document.add(new Paragraph("Fecha: " + fecha));
+        document.close();
+
+        // Subir PDF a S3 usando byte[]
+        awsS3Service.upload("bucketduocpruebas3", key, baos.toByteArray());
+
+        return ResponseEntity.ok("Factura creada y archivo PDF generado en S3 correctamente.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error al crear factura: " + e.getMessage());
     }
+}
 
     // Subir factura (archivo PDF) a S3
     @PostMapping("/subir")
@@ -39,7 +65,7 @@ public ResponseEntity<String> subirFactura(@RequestParam String clienteId,
         LocalDate localDate = LocalDate.parse(fecha, DateTimeFormatter.ISO_DATE);
         String carpeta = clienteId + "/" + localDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
         String key = carpeta + "/" + facturaId + ".pdf";
-        awsS3Service.upload("bucketduocpruebas3", key, file);
+        awsS3Service.upload("bucketduocpruebas3", key, file.getBytes());
         return ResponseEntity.ok("Factura subida correctamente a S3.");
     } catch (Exception e) {
         e.printStackTrace();
@@ -56,8 +82,13 @@ public ResponseEntity<String> subirFactura(@RequestParam String clienteId,
         LocalDate localDate = LocalDate.parse(fecha, DateTimeFormatter.ISO_DATE);
         String carpeta = clienteId + "/" + localDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
         String key = carpeta + "/" + facturaId + ".pdf";
-        awsS3Service.upload("bucketduocpruebas3", key, file);
-        return ResponseEntity.ok("Factura actualizada correctamente en S3.");
+        try {
+            awsS3Service.upload("bucketduocpruebas3", key, file.getBytes());
+            return ResponseEntity.ok("Factura actualizada correctamente en S3.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al actualizar factura: " + e.getMessage());
+        }
     }
 
     // Descargar factura
