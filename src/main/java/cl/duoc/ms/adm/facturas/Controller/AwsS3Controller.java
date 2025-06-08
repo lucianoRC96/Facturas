@@ -34,7 +34,7 @@ public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
         String carpeta = clienteId + "/" + localDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
         String key = carpeta + "/" + facturaId + ".pdf";
 
-        // Generar PDF en memoria
+        
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document();
         PdfWriter.getInstance(document, baos);
@@ -45,17 +45,8 @@ public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
         document.add(new Paragraph("Fecha: " + fecha));
         document.close();
 
-        // Subir PDF a S3 usando byte[]
-        awsS3Service.upload("bucketduocpruebas3", key, baos.toByteArray());
 
-        return ResponseEntity.ok("Factura creada y archivo PDF generado en S3 correctamente.");
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body("Error al crear factura: " + e.getMessage());
-    }
-}
-
-    // Subir factura (archivo PDF) a S3
+    // Subir factura
     @PostMapping("/subir")
 public ResponseEntity<String> subirFactura(@RequestParam String clienteId,
                                            @RequestParam String facturaId,
@@ -73,7 +64,7 @@ public ResponseEntity<String> subirFactura(@RequestParam String clienteId,
     }
 }
 
-    // Modificar/actualizar factura (sobrescribe el archivo en S3)
+    // actualizar factura
     @PutMapping("/actualizar")
     public ResponseEntity<String> actualizarFactura(@RequestParam String clienteId,
                                                    @RequestParam String facturaId,
@@ -118,10 +109,9 @@ public ResponseEntity<String> subirFactura(@RequestParam String clienteId,
         return ResponseEntity.ok("Factura eliminada correctamente de S3.");
     }
 
-    // Consultar historial de facturas para un cliente (devuelve lista de archivos)
+    // Consultar historial de facturas para un cliente
     @GetMapping("/historial")
     public ResponseEntity<List<S3ObjectDto>> historialFacturas(@RequestParam String clienteId) {
-        // Listar todos los objetos bajo la carpeta del cliente
         String prefix = clienteId + "/";
         List<S3ObjectDto> archivos = awsS3Service.listObjectsWithPrefix("bucketduocpruebas3", prefix);
         return ResponseEntity.ok(archivos);
