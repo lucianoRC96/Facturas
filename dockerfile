@@ -7,6 +7,7 @@ COPY pom.xml /app
 COPY src /app/src
 RUN apt-get update && \
     apt-get install -y maven && \
+    sudo mkdir -p /efs
     mvn clean package
 
 # Etapa de runtime
