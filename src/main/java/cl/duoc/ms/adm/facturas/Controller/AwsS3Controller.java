@@ -34,7 +34,7 @@ public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
         String carpeta = clienteId + "/" + localDate.format(DateTimeFormatter.ofPattern("yyyy-MM"));
         String key = carpeta + "/" + facturaId + ".pdf";
 
-        
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Document document = new Document();
         PdfWriter.getInstance(document, baos);
@@ -44,6 +44,16 @@ public ResponseEntity<String> crearFactura(@RequestParam String clienteId,
         document.add(new Paragraph("Factura: " + facturaId));
         document.add(new Paragraph("Fecha: " + fecha));
         document.close();
+
+        
+        awsS3Service.upload("bucketduocpruebas3", key, baos.toByteArray());
+
+        return ResponseEntity.ok("Factura creada y archivo PDF generado en S3 correctamente.");
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error al crear factura: " + e.getMessage());
+    }
+}
 
 
     // Subir factura
