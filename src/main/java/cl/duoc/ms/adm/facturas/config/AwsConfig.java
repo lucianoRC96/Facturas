@@ -10,7 +10,7 @@ public class AwsConfig {
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
-                .region(Region.US_EAST_1) // O usa Region.of("us-east-1") si prefieres por string
+                .region(Region.US_EAST_1) 
                 .build();
     }
 }
